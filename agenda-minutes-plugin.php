@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Agenda & Minutes by OnPoint Insights
+ * Plugin Name: Agenda and Minutes
  * Description: The "Agenda Minutes Plugin" simplifies meeting management in WordPress, allowing you to create and document agendas and minutes, collaborate with your team, and use customizable templates for efficient meeting organization.
  * Version: 1.0.0
  * Author: OnPoint Insights LLC
