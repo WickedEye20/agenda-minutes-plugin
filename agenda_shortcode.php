@@ -11,12 +11,11 @@ function agenda_table_shortcode($atts)
         array(
             'style' => 'style_one',
             'color' => '#0d6efd',
-            // Define your arguments and default values here
         ),
         $atts
     );
     $style = sanitize_text_field($args['style']);
-    $color = sanitize_hex_color($args['color']);
+    $color = sanitize_text_field($args['color']) ? sanitize_text_field($args['color']) : "#000";
 
     // Global Style
     echo '<style>

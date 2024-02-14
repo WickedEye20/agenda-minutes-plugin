@@ -111,7 +111,7 @@ function render_agenda_minutes_upload_option_meta_box($post)
     $upload_option = get_post_meta($post->ID, 'upload_option', true);
     echo '<div>';
     echo '<input type="text" id="agenda_minutes_upload_option_media" name="agenda_minutes_upload_option" value="' . esc_attr($upload_option) . '" />';
-    echo '<input type="button" class="button" id="agenda_minutes_upload_option_media_button" value="Choose from Media Library" onclick="openMediaLibrary(event);" />';
+    echo '<input type="button" class="button" id="agenda_minutes_upload_option_media_button" value="Choose from Media Library" />';
     echo '<div class="submitbox"><b class="submitdelete deletion">* allowed file - pdf</b></div>';
     echo '</div>';
 }
