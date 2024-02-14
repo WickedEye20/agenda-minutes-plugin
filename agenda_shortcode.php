@@ -1,5 +1,9 @@
 <?php
-// Shortcode to display Agenda in a table with category dropdown and tabs
+// Security check to prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 function agenda_table_shortcode($atts)
 {
     ob_start();
@@ -11,13 +15,13 @@ function agenda_table_shortcode($atts)
         ),
         $atts
     );
-    $style = $args['style'];
-    $color = $args['color'];
+    $style = sanitize_text_field($args['style']);
+    $color = sanitize_hex_color($args['color']);
 
     // Global Style
     echo '<style>
             :root{
-                --bg_color: ' . $color . ';
+                --bg_color: ' . esc_attr($color) . ';
             }
         </style>';
 
@@ -31,14 +35,11 @@ function agenda_table_shortcode($atts)
         echo '<select class="agenda-years-dropdown form-select w-auto mx-2 cursor-pointer" name="year">';
         echo '<option value="select_year" disabled>' . esc_html__('Select Year', 'agenda_plugin') . '</option>';
         foreach ($terms as $key => $term) {
-            if ($key === 0) { // Set the first option as selected
-                echo '<option value="' . $term->slug . '" selected>' . $term->name . '</option>';
-            } else {
-                echo '<option value="' . $term->slug . '">' . $term->name . '</option>';
-            }
+            $selected = ($key === 0) ? 'selected' : '';
+            echo '<option value="' . esc_attr($term->slug) . '" ' . esc_attr($selected) . '>' . esc_html($term->name) . '</option>';
         }
         echo '</select>';
-        echo '<div class="result_year fs-4 mt-md-0 mt-2">Showing result for <span id="selected-result-year" class="fw-bold text-primary">' . $first_term->name . '</span></div>';
+        echo '<div class="result_year fs-4 mt-md-0 mt-2">Showing result for <span id="selected-result-year" class="fw-bold text-primary">' . esc_html($first_term->name) . '</span></div>';
         echo '</div>';
     }
 
@@ -52,47 +53,33 @@ function agenda_table_shortcode($atts)
     echo '<div class="tab-content mt-4">';
     // Output the container div for Agenda content
     echo '<div class="agenda-content tab-pane fade show active" id="agenda_minutes-tab-1">';
-    // echo '<h3 class="accordion-title d-none">Agenda</h3>';
     if ($style == 'style_one') {
-        // Style One
         echo '<div class="accordion-content" id="#agenda_minutes-content">';
         echo '<div class="agenda-table row">';
-        // Call the function to fetch Agenda posts
         agenda_display_posts_by_type('agenda', $terms, $style);
         echo '</div>';
         echo '</div>';
-    } else if ($style == 'style_two') {
-        // Style Two
+    } elseif ($style == 'style_two') {
         echo '<div class="accordion table-style_two" id="agenda-style_two">
         <div class="accordion-item border-0">';
-        // Call the function to fetch Minute posts
         agenda_display_posts_by_type('agenda', $terms, $style);
         echo '</div>
         </div>';
     }
-
     echo '</div>';
 
     // Output the container div for Minute content
     echo '<div class="minutes-content tab-pane fade" id="agenda_minutes-tab-2">';
-    // echo '<h3 class="accordion-title d-none">Minutes</h3>';
     if ($style == 'style_one') {
-        // Style One
         echo '<div class="accordion-content">';
         echo '<div class="minute-table row">';
-
-        // Call the function to fetch Minute posts
         agenda_display_posts_by_type('minute', $terms, $style);
-
         echo '</div>';
         echo '</div>';
-    } else if ($style == 'style_two') {
-        // Style Two
+    } elseif ($style == 'style_two') {
         echo '<div class="accordion table-style_two" id="minute-style_two">
         <div class="accordion-item border-0">';
-        // Call the function to fetch Minute posts
         agenda_display_posts_by_type('minute', $terms, $style);
-
         echo '</div>
         </div>';
     }
@@ -104,11 +91,9 @@ add_shortcode('agenda_table', 'agenda_table_shortcode');
 
 function agenda_display_posts_by_type($type, $terms, $style)
 {
-    // Initialize an empty array to store grouped posts
     $groupedPosts = array();
 
     foreach ($terms as $term) {
-        // WP_Query code
         $args = array(
             'post_type' => 'agenda',
             'tax_query' => array(
@@ -132,44 +117,35 @@ function agenda_display_posts_by_type($type, $terms, $style)
             while ($query->have_posts()) {
                 $query->the_post();
 
-                // Get the 'calendar' post meta value
                 $calendarDate = get_post_meta(get_the_ID(), 'calendar', true);
-                $uploadOption = get_post_meta(get_the_ID(), 'upload_option', true);
-
-                // Format the date
+                $uploadOption = esc_url(get_post_meta(get_the_ID(), 'upload_option', true));
                 $formattedDate = date('F Y', strtotime($calendarDate));
-
-                // Create a key based on the formatted date
                 $key = sanitize_title($formattedDate);
 
-                // Add the post to the corresponding group
                 if (!isset($groupedPosts[$key])) {
                     $groupedPosts[$key] = array(
-                        'date' => $formattedDate,
-                        'date_term' => $term->name,
+                        'date' => esc_html($formattedDate),
+                        'date_term' => esc_html($term->name),
                         'posts' => array(),
                         'id' => $key,
                     );
                 }
 
-                // Add the post to the group
                 $groupedPosts[$key]['posts'][] = array(
-                    'title' => get_the_title(),
-                    'permalink' => get_permalink(),
-                    // Add other post data as needed...
+                    'title' => esc_html(get_the_title()),
+                    'permalink' => esc_url(get_permalink()),
+                    'date' => esc_html($calendarDate),
+                    'uploads' => esc_url($uploadOption),
                 );
             }
             wp_reset_postdata();
         } else {
-            // If no posts are found for this year, display a message
             echo '<div class="agenda_main col-xxl-4 col-xl-4 col-md-6 agenda_main-' . sanitize_title($term->name) . '" id="agenda_main-' . sanitize_title($term->name) . '">';
             echo '<h6>' . esc_html__('No Posts Available for ', 'agenda_plugin') . esc_html($term->name) . '</h6>';
             echo '</div>';
         }
     }
 
-    // Loop through the grouped posts and display them
-    // Style one loop
     if ($style == 'style_one') {
         foreach ($groupedPosts as $group) {
             echo '<div class="agenda_main col-xxl-4 col-xl-4 col-md-6 agenda_main-' . sanitize_title($group['date_term']) . '">';
@@ -184,14 +160,15 @@ function agenda_display_posts_by_type($type, $terms, $style)
                 </thead>';
 
             foreach ($group['posts'] as $post) {
+                $uploads = esc_url($post['uploads']);
+                $date = esc_html($post['date']);
                 echo '<tr>';
                 echo '<td>' . esc_html($post['title']) . '</td>';
-                echo '<td><span class="post-date">' . esc_html($calendarDate) . '</span></td>';
-                if ($uploadOption == null) {
+                echo '<td><span class="post-date">' . $date . '</span></td>';
+                if ($uploads == null) {
                     echo '<td>No PDF Available</td>';
                 } else {
-                    // Add PDF download links or other post data here...
-                    echo '<td><a href="' . $uploadOption . '" data-pdf-url="' . esc_url($uploadOption) . '" download="' . get_the_title() . '.pdf">Download PDF</a></td>';
+                    echo '<td><a href="' . $uploads . '" data-pdf-url="' . $uploads . '" download="' . esc_attr(get_the_title()) . '.pdf">Download PDF</a></td>';
                 }
                 echo '</tr>';
             }
@@ -201,17 +178,16 @@ function agenda_display_posts_by_type($type, $terms, $style)
         }
     }
 
-    // Style two loop
-
     if ($style == 'style_two') {
+        $i = 0;
         foreach ($groupedPosts as $group) {
             echo '<div class="mb-3 agenda_main col-md-12 agenda_main-' . sanitize_title($group['date_term']) . '">';
-            echo '<h2 class="accordion-header m-0" id="headingOne">
+            echo '<h2 class="accordion-header m-0" id="style_two_accordion_' . $i . '">
         <button class="d-flex _bg_color accordion-button border w-100 shadow-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' . $type . "-" . esc_html($group['id']) . '" aria-expanded="false" aria-controls="' . $type . "-" . esc_html($group['id']) . '">
         ' . esc_html($group['date']) . '
         </button>
         </h2>';
-            echo '<div id="' . $type . "-" . esc_html($group['id']) . '" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#' . $type . '-' . 'style_two">';
+            echo '<div id="' . $type . "-" . esc_html($group['id']) . '" class="accordion-collapse collapse" aria-labelledby="style_two_accordion_' . $i . '" data-bs-parent="#' . $type . '-' . 'style_two">';
             echo '<div class="accordion-body p-3 px-2">';
             echo '<table class="table border-0">';
             echo '<thead>
@@ -229,9 +205,8 @@ function agenda_display_posts_by_type($type, $terms, $style)
                 if ($uploadOption == null) {
                     echo '<td class="border-0">No PDF Available</td>';
                 } else {
-                    echo '<td class="border-0"><a href="' . $uploadOption . '" data-pdf-url="' . esc_url($uploadOption) . '" download="' . get_the_title() . '.pdf">Download PDF</a></td>';
+                    echo '<td class="border-0"><a href="' . esc_url($uploadOption) . '" data-pdf-url="' . esc_url($uploadOption) . '" download="' . esc_attr(get_the_title()) . '.pdf">Download PDF</a></td>';
                 }
-                // Add PDF download links or other post data here...
                 echo '</tr>';
             }
             echo '</table>';
@@ -239,6 +214,6 @@ function agenda_display_posts_by_type($type, $terms, $style)
             echo '</div>';
             echo '</div>';
         }
+        $i++;
     }
-
 }

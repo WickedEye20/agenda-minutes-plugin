@@ -1,0 +1,38 @@
+/* Custom styles for the "Download PDF" link */
+.download-pdf-link {
+  margin-left: 10px;
+  color: #0073aa;
+  text-decoration: none;
+}
+
+/* hide first table element */
+
+.agenda_main {
+  display: none;
+}
+
+.agenda_main:first-child,
+.agenda_main.show_main {
+  display: block;
+}
+
+.agenda_main .table > thead > tr > th:nth-child(1) {
+  border-radius: 8px 0 0 0;
+}
+
+.agenda_main table > tbody > tr:last-child td:first-child{
+  border-radius: 0 0 0 8px;
+
+}
+
+.agenda_main .table > thead > tr > th:nth-child(3) {
+  border-radius: 0 8px 0 0;
+}
+
+.agenda_main table > tbody > tr:last-child td:last-child{
+    border-radius: 0 0 8px 0;
+}
+
+.agenda_main .table > thead {
+  font-size: 0.875rem;
+}
