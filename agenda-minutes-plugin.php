@@ -39,7 +39,7 @@ function op_agenda_custom_post_types()
         array('agenda', 'minutes'),
         // Post types to which the taxonomy will be applied
         array(
-            'label' => __('Years', 'agenda_minutes_plugin'),
+            'label' => __('Years', 'op_agenda_plugin'),
             'rewrite' => array('slug' => 'year'),
             'hierarchical' => true,
         )
@@ -57,7 +57,7 @@ function op_agenda_meta_boxes()
     // Add meta box for Calendar field
     add_meta_box(
         'agenda_minutes_calendar',
-        __('Calendar', 'agenda_minutes_plugin'),
+        __('Calendar', 'op_agenda_plugin'),
         'op_agenda_calendar_meta_box',
         array('agenda', 'minutes'),
         'normal',
@@ -67,7 +67,7 @@ function op_agenda_meta_boxes()
     // Add meta box for Upload Option field
     add_meta_box(
         'agenda_minutes_upload_option',
-        __('Upload Option', 'agenda_minutes_plugin'),
+        __('Upload Option', 'op_agenda_plugin'),
         'op_agenda_upload_option_meta_box',
         array('agenda', 'minutes'),
         'normal',
@@ -77,7 +77,7 @@ function op_agenda_meta_boxes()
     // Add meta box for Select Type field
     add_meta_box(
         'agenda_minutes_select_type',
-        __('Select Type', 'agenda_minutes_plugin'),
+        __('Select Type', 'op_agenda_plugin'),
         'op_agenda_select_type_meta_box',
         array('agenda', 'minutes'),
         'side',
@@ -97,8 +97,7 @@ function op_agenda_calendar_meta_box($post)
 // Callback function to render the Select Type meta box content
 function op_agenda_select_type_meta_box($post)
 {
-    error_log('save_agenda_minutes_meta_boxes called for post ID: ' . $post->ID);
-    wp_nonce_field('save_agenda_minutes_meta_boxes', 'agenda_minutes_meta_box_nonce');
+    wp_nonce_field('op_agenda_save_meta_boxes', 'op_agenda_meta_box_nonce');
     $select_type = get_post_meta($post->ID, 'select_type', true);
 
     echo '<label for="agenda_minutes_select_type_agenda">';
@@ -136,9 +135,9 @@ function agenda_enqueue_custom_scripts()
 add_action('admin_enqueue_scripts', 'agenda_enqueue_custom_scripts');
 
 // Save meta box data
-function agenda_save_meta_boxes($post_id)
+function op_agenda_save_meta_boxes($post_id)
 {
-    if (!isset($_POST['agenda_minutes_meta_box_nonce']) || !wp_verify_nonce($_POST['agenda_minutes_meta_box_nonce'], 'save_agenda_minutes_meta_boxes')) {
+    if (!isset($_POST['op_agenda_meta_box_nonce']) || !wp_verify_nonce($_POST['op_agenda_meta_box_nonce'], 'op_agenda_save_meta_boxes')) {
         return;
     }
 
@@ -163,7 +162,7 @@ function agenda_save_meta_boxes($post_id)
     }
 }
 
-add_action('save_post', 'agenda_save_meta_boxes');
+add_action('save_post', 'op_agenda_save_meta_boxes');
 
 function op_agenda_post_type_admin_notice()
 {

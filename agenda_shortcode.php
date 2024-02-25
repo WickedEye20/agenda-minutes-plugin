@@ -11,12 +11,11 @@ function op_agenda_table_shortcode($atts)
         array(
             'style' => 'style_one',
             'color' => '#0d6efd',
-            // Define your arguments and default values here
         ),
         $atts
     );
     $style = sanitize_text_field($args['style']);
-    $color = sanitize_hex_color($args['color']);
+    $color = sanitize_text_field($args['color']) ? sanitize_text_field($args['color']) : "#000";
 
     // Global Style
     echo '<style>
@@ -179,14 +178,15 @@ function op_agenda_display_posts_by_type($type, $terms, $style)
     }
 
     if ($style == 'style_two') {
+        $i = 0;
         foreach ($groupedPosts as $group) {
             echo '<div class="mb-3 agenda_main col-md-12 agenda_main-' . sanitize_title($group['date_term']) . '">';
-            echo '<h2 class="accordion-header m-0" id="headingOne">
+            echo '<h2 class="accordion-header m-0" id="style_two_accordion_' . $i . '">
         <button class="d-flex _bg_color accordion-button border w-100 shadow-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' . $type . "-" . esc_html($group['id']) . '" aria-expanded="false" aria-controls="' . $type . "-" . esc_html($group['id']) . '">
         ' . esc_html($group['date']) . '
         </button>
         </h2>';
-            echo '<div id="' . $type . "-" . esc_html($group['id']) . '" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#' . $type . '-' . 'style_two">';
+            echo '<div id="' . $type . "-" . esc_html($group['id']) . '" class="accordion-collapse collapse" aria-labelledby="style_two_accordion_' . $i . '" data-bs-parent="#' . $type . '-' . 'style_two">';
             echo '<div class="accordion-body p-3 px-2">';
             echo '<table class="table border-0">';
             echo '<thead>
@@ -213,5 +213,6 @@ function op_agenda_display_posts_by_type($type, $terms, $style)
             echo '</div>';
             echo '</div>';
         }
+        $i++;
     }
 }
