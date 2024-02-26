@@ -3,22 +3,11 @@ function openMediaLibrary(event) {
 
     // Create a new instance of the media library frame
     const customMediaFrame = wp.media({
-        title: 'Select PDF',
+        title: 'Choose from Media Library',
         button: {
-            text: 'Select PDF',
+            text: 'Choose',
         },
         multiple: false,
-        library: {
-            // Custom function to filter media items
-            filterable: 'all',
-            props: {
-                // Callback function to filter media items
-                filters: {
-                    // Filter by file type
-                    type: 'pdf' // Only allow pdf
-                }
-            }
-        }
     });
 
     // When an image/file is selected, run a callback.

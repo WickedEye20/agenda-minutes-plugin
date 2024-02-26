@@ -5,13 +5,18 @@
  * Version: 1.0.0
  * Author: OnPoint Insights LLC
  * Author URI: https://www.onpointinsights.us/
+ * Contributors: OnPoint Insights LLC
+ * Tags: agenda, minutes, plugin
+ * Requires at least: 5.0
+ * Tested up to: 6.4
+ * Requires PHP: 5.6
+ * Stable tag: 1.0.0
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-if (!defined('ABSPATH'))
-    exit; // Exit if accessed directly    
-
 // Register custom post types and taxonomy
-function create_custom_post_types()
+function op_agenda_custom_post_types()
 {
     // Custom post type for Agenda
     register_post_type(
@@ -34,26 +39,26 @@ function create_custom_post_types()
         array('agenda', 'minutes'),
         // Post types to which the taxonomy will be applied
         array(
-            'label' => __('Years', 'agenda_minutes_plugin'),
+            'label' => __('Years', 'op_agenda_plugin'),
             'rewrite' => array('slug' => 'year'),
             'hierarchical' => true,
         )
     );
 
     // Add meta fields to Agenda and Minutes
-    add_action('add_meta_boxes', 'add_agenda_minutes_meta_boxes');
+    add_action('add_meta_boxes', 'op_agenda_meta_boxes');
 }
 
-add_action('init', 'create_custom_post_types');
+add_action('init', 'op_agenda_custom_post_types');
 
 // Callback function to add meta boxes for Agenda and Minutes
-function add_agenda_minutes_meta_boxes()
+function op_agenda_meta_boxes()
 {
     // Add meta box for Calendar field
     add_meta_box(
         'agenda_minutes_calendar',
-        __('Calendar', 'agenda_minutes_plugin'),
-        'render_agenda_minutes_calendar_meta_box',
+        __('Calendar', 'op_agenda_plugin'),
+        'op_agenda_calendar_meta_box',
         array('agenda', 'minutes'),
         'normal',
         'default'
@@ -62,8 +67,8 @@ function add_agenda_minutes_meta_boxes()
     // Add meta box for Upload Option field
     add_meta_box(
         'agenda_minutes_upload_option',
-        __('Upload Option', 'agenda_minutes_plugin'),
-        'render_agenda_minutes_upload_option_meta_box',
+        __('Upload Option', 'op_agenda_plugin'),
+        'op_agenda_upload_option_meta_box',
         array('agenda', 'minutes'),
         'normal',
         'default'
@@ -72,8 +77,8 @@ function add_agenda_minutes_meta_boxes()
     // Add meta box for Select Type field
     add_meta_box(
         'agenda_minutes_select_type',
-        __('Select Type', 'agenda_minutes_plugin'),
-        'render_agenda_minutes_select_type_meta_box',
+        __('Select Type', 'op_agenda_plugin'),
+        'op_agenda_select_type_meta_box',
         array('agenda', 'minutes'),
         'side',
         'default'
@@ -81,7 +86,7 @@ function add_agenda_minutes_meta_boxes()
 }
 
 // Callback function to render the Calendar meta box content
-function render_agenda_minutes_calendar_meta_box($post)
+function op_agenda_calendar_meta_box($post)
 {
     $calendar_date = get_post_meta($post->ID, 'calendar', true);
     echo '<label for="agenda_minutes_calendar">';
@@ -90,10 +95,9 @@ function render_agenda_minutes_calendar_meta_box($post)
 }
 
 // Callback function to render the Select Type meta box content
-function render_agenda_minutes_select_type_meta_box($post)
+function op_agenda_select_type_meta_box($post)
 {
-    error_log('save_agenda_minutes_meta_boxes called for post ID: ' . $post->ID);
-    wp_nonce_field('save_agenda_minutes_meta_boxes', 'agenda_minutes_meta_box_nonce');
+    wp_nonce_field('op_agenda_save_meta_boxes', 'op_agenda_meta_box_nonce');
     $select_type = get_post_meta($post->ID, 'select_type', true);
 
     echo '<label for="agenda_minutes_select_type_agenda">';
@@ -106,12 +110,12 @@ function render_agenda_minutes_select_type_meta_box($post)
 }
 
 // Callback function to render the Upload Option meta box content
-function render_agenda_minutes_upload_option_meta_box($post)
+function op_agenda_upload_option_meta_box($post)
 {
     $upload_option = get_post_meta($post->ID, 'upload_option', true);
     echo '<div>';
     echo '<input type="text" id="agenda_minutes_upload_option_media" name="agenda_minutes_upload_option" value="' . esc_attr($upload_option) . '" />';
-    echo '<input type="button" class="button" id="agenda_minutes_upload_option_media_button" value="Choose from Media Library" />';
+    echo '<input type="button" class="button" id="agenda_minutes_upload_option_media_button" value="Choose from Media Library" onclick="openMediaLibrary(event);" />';
     echo '<div class="submitbox"><b class="submitdelete deletion">* allowed file - pdf</b></div>';
     echo '</div>';
 }
@@ -131,9 +135,9 @@ function agenda_enqueue_custom_scripts()
 add_action('admin_enqueue_scripts', 'agenda_enqueue_custom_scripts');
 
 // Save meta box data
-function agenda_save_meta_boxes($post_id)
+function op_agenda_save_meta_boxes($post_id)
 {
-    if (!isset($_POST['agenda_minutes_meta_box_nonce']) || !wp_verify_nonce(sanitize_text_field($_POST['agenda_minutes_meta_box_nonce']), 'save_agenda_minutes_meta_boxes')) {
+    if (!isset($_POST['op_agenda_meta_box_nonce']) || !wp_verify_nonce($_POST['op_agenda_meta_box_nonce'], 'op_agenda_save_meta_boxes')) {
         return;
     }
 
@@ -158,9 +162,9 @@ function agenda_save_meta_boxes($post_id)
     }
 }
 
-add_action('save_post', 'agenda_save_meta_boxes');
+add_action('save_post', 'op_agenda_save_meta_boxes');
 
-function custom_post_type_admin_notice()
+function op_agenda_post_type_admin_notice()
 {
     global $post;
     if (isset($post) && $post->post_type == 'agenda') {
@@ -172,12 +176,12 @@ function custom_post_type_admin_notice()
     }
 }
 
-add_action('admin_notices', 'custom_post_type_admin_notice');
+add_action('admin_notices', 'op_agenda_post_type_admin_notice');
 
 include "agenda_shortcode.php";
 
 // Enqueue the required CSS styles for the "Download PDF" link
-function agenda_enqueue_custom_styles()
+function op_agenda_enqueue_custom_styles()
 {
     wp_enqueue_style(
         'agenda_custom_styles',
@@ -193,10 +197,10 @@ function agenda_enqueue_custom_styles()
     );
 }
 
-add_action('wp_enqueue_scripts', 'agenda_enqueue_custom_styles', 1);
+add_action('wp_enqueue_scripts', 'op_agenda_enqueue_custom_styles', 1);
 
 // Enqueue the required JavaScript for dropdown, tabs, and accordion
-function agenda_enqueue_scripts()
+function op_agenda_enqueue_scripts()
 {
     wp_enqueue_script('jquery');
     wp_enqueue_script(
@@ -222,4 +226,4 @@ function agenda_enqueue_scripts()
     );
 }
 
-add_action('wp_enqueue_scripts', 'agenda_enqueue_scripts', 1);
+add_action('wp_enqueue_scripts', 'op_agenda_enqueue_scripts', 1);

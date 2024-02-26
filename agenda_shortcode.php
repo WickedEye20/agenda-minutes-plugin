@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function agenda_table_shortcode($atts)
+function op_agenda_table_shortcode($atts)
 {
     ob_start();
     $args = shortcode_atts(
@@ -55,13 +55,13 @@ function agenda_table_shortcode($atts)
     if ($style == 'style_one') {
         echo '<div class="accordion-content" id="#agenda_minutes-content">';
         echo '<div class="agenda-table row">';
-        agenda_display_posts_by_type('agenda', $terms, $style);
+        op_agenda_display_posts_by_type('agenda', $terms, $style);
         echo '</div>';
         echo '</div>';
     } elseif ($style == 'style_two') {
         echo '<div class="accordion table-style_two" id="agenda-style_two">
         <div class="accordion-item border-0">';
-        agenda_display_posts_by_type('agenda', $terms, $style);
+        op_agenda_display_posts_by_type('agenda', $terms, $style);
         echo '</div>
         </div>';
     }
@@ -72,13 +72,13 @@ function agenda_table_shortcode($atts)
     if ($style == 'style_one') {
         echo '<div class="accordion-content">';
         echo '<div class="minute-table row">';
-        agenda_display_posts_by_type('minute', $terms, $style);
+        op_agenda_display_posts_by_type('minute', $terms, $style);
         echo '</div>';
         echo '</div>';
     } elseif ($style == 'style_two') {
         echo '<div class="accordion table-style_two" id="minute-style_two">
         <div class="accordion-item border-0">';
-        agenda_display_posts_by_type('minute', $terms, $style);
+        op_agenda_display_posts_by_type('minute', $terms, $style);
         echo '</div>
         </div>';
     }
@@ -86,9 +86,9 @@ function agenda_table_shortcode($atts)
     echo '</div>';
     return ob_get_clean();
 }
-add_shortcode('agenda_table', 'agenda_table_shortcode');
+add_shortcode('agenda_table', 'op_agenda_table_shortcode');
 
-function agenda_display_posts_by_type($type, $terms, $style)
+function op_agenda_display_posts_by_type($type, $terms, $style)
 {
     $groupedPosts = array();
 
